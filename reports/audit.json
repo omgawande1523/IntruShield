@@ -1,0 +1,179 @@
+{
+  "rows": {
+    "train": 125973,
+    "test": 22544,
+    "test21": 11850
+  },
+  "duplicate_rows": {
+    "train": 0,
+    "test": 0,
+    "test_rows_also_in_train": 664
+  },
+  "class_distribution": {
+    "train": {
+      "Normal": 67343,
+      "DoS": 45927,
+      "Probe": 11656,
+      "R2L": 995,
+      "U2R": 52
+    },
+    "test": {
+      "Normal": 9711,
+      "DoS": 7458,
+      "R2L": 2754,
+      "Probe": 2421,
+      "U2R": 200
+    },
+    "test21": {
+      "DoS": 4342,
+      "R2L": 2754,
+      "Probe": 2402,
+      "Normal": 2152,
+      "U2R": 200
+    }
+  },
+  "binary_distribution": {
+    "train": {
+      "normal": 67343,
+      "attack": 58630
+    },
+    "test": {
+      "attack": 12833,
+      "normal": 9711
+    }
+  },
+  "n_attack_types": {
+    "train": 23,
+    "test": 38
+  },
+  "constant_columns": [
+    "num_outbound_cmds"
+  ],
+  "attacks_in_test_not_in_train": {
+    "apache2": {
+      "class": "DoS",
+      "test_rows": 737
+    },
+    "httptunnel": {
+      "class": "U2R",
+      "test_rows": 133
+    },
+    "mailbomb": {
+      "class": "DoS",
+      "test_rows": 293
+    },
+    "mscan": {
+      "class": "Probe",
+      "test_rows": 996
+    },
+    "named": {
+      "class": "R2L",
+      "test_rows": 17
+    },
+    "processtable": {
+      "class": "DoS",
+      "test_rows": 685
+    },
+    "ps": {
+      "class": "U2R",
+      "test_rows": 15
+    },
+    "saint": {
+      "class": "Probe",
+      "test_rows": 319
+    },
+    "sendmail": {
+      "class": "R2L",
+      "test_rows": 14
+    },
+    "snmpgetattack": {
+      "class": "R2L",
+      "test_rows": 178
+    },
+    "snmpguess": {
+      "class": "R2L",
+      "test_rows": 331
+    },
+    "sqlattack": {
+      "class": "U2R",
+      "test_rows": 2
+    },
+    "udpstorm": {
+      "class": "DoS",
+      "test_rows": 2
+    },
+    "worm": {
+      "class": "R2L",
+      "test_rows": 2
+    },
+    "xlock": {
+      "class": "R2L",
+      "test_rows": 9
+    },
+    "xsnoop": {
+      "class": "R2L",
+      "test_rows": 4
+    },
+    "xterm": {
+      "class": "U2R",
+      "test_rows": 13
+    }
+  },
+  "unseen_attack_rows_in_test": 3750,
+  "attack_map": {
+    "DoS": [
+      "back",
+      "land",
+      "neptune",
+      "pod",
+      "smurf",
+      "teardrop",
+      "apache2",
+      "mailbomb",
+      "processtable",
+      "udpstorm"
+    ],
+    "Probe": [
+      "ipsweep",
+      "nmap",
+      "portsweep",
+      "satan",
+      "mscan",
+      "saint"
+    ],
+    "R2L": [
+      "ftp_write",
+      "guess_passwd",
+      "imap",
+      "multihop",
+      "phf",
+      "spy",
+      "warezclient",
+      "warezmaster",
+      "named",
+      "sendmail",
+      "snmpgetattack",
+      "snmpguess",
+      "xlock",
+      "xsnoop",
+      "worm"
+    ],
+    "U2R": [
+      "buffer_overflow",
+      "loadmodule",
+      "perl",
+      "rootkit",
+      "httptunnel",
+      "ps",
+      "sqlattack",
+      "xterm"
+    ],
+    "Normal": [
+      "normal"
+    ]
+  },
+  "difficulty_mean": {
+    "train": 19.50406039389393,
+    "test": 18.017964868701206
+  }
+}

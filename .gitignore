@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Node / build output
+node_modules/
+frontend/dist/
+
+# Large / regenerable artifacts not needed to run the app
+models/candidates/
+design/source-models/
+design/screens/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

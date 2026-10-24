@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IntruShield — how it works</title>
+<style>
+:root{--bg:#fafaf9;--ink:#15181c;--muted:#5d646d;--line:#d9dcdf;--accent:#13a4a4;--red:#e5484d;--amber:#e3a008;--grey:#9aa0a6;--card:#ffffff;--dimop:.4}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121416;--ink:#ecedee;--muted:#9aa3ad;--line:#33383d;--card:#1b1e21;--grey:#6b7279}}
+:root[data-theme=dark]{--bg:#121416;--ink:#ecedee;--muted:#9aa3ad;--line:#33383d;--card:#1b1e21;--grey:#6b7279}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;min-height:100vh}
+header{padding:22px 40px 6px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+h1{font-size:28px;font-weight:600;letter-spacing:-.01em}
+header p{color:var(--muted);font-size:16px}
+main{flex:1;display:flex;flex-direction:column;padding:0 40px;min-width:0}
+#diagram-wrap{position:relative;width:100%}
+svg#net{width:100%;height:auto;display:block;overflow:visible}
+.edge{fill:none;stroke:var(--line);stroke-width:1.5;transition:opacity .4s,stroke .4s}
+.edge.active{stroke:var(--accent);stroke-dasharray:7 7;animation:dash .9s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.node rect{fill:var(--card);stroke:var(--ink);stroke-width:1.5;transition:opacity .4s;transform-box:fill-box;transform-origin:center}
+.node text{fill:var(--ink);font-family:inherit;pointer-events:none}
+.node .lab{font-size:15px;font-weight:600}
+.node .key{font-size:14px;fill:var(--accent);transition:opacity .4s}
+.node.dim{opacity:var(--dimop);transition:opacity .4s}
+.node{transition:opacity .4s}
+.node.active rect{stroke:var(--accent);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{stroke-width:1.5;transform:scale(1)}50%{stroke-width:3;transform:scale(1.035)}}
+.p .hit{fill:transparent;cursor:pointer}
+.p .dot{fill:var(--grey);stroke:none;stroke-width:2.5;pointer-events:none;transition:fill .25s}
+.p.teal .dot{fill:var(--accent)}.p.red .dot{fill:var(--red)}.p.ring .dot{stroke:var(--amber)}
+body.paused *{animation-play-state:paused!important}
+#card{position:absolute;z-index:5;width:300px;background:var(--card);border:1.5px solid var(--ink);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.45}
+#card[hidden]{display:none}
+#card h4{font-size:15px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+#card button{background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;line-height:1}
+#card dl{display:grid;grid-template-columns:auto 1fr;gap:1px 10px}#card dt{color:var(--muted)}#card dd{font-variant-numeric:tabular-nums}
+#card .attack{color:var(--red);font-weight:600}#card .normal{color:var(--accent);font-weight:600}#card .wrong{color:var(--amber);font-weight:600}
+#card ul{margin:6px 0 0 16px}
+#panel{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto;gap:32px;padding:10px 0 12px;border-top:1.5px solid var(--line);align-items:start}
+#caption .no{color:var(--accent);font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+#caption h2{font-size:24px;font-weight:600;margin:2px 0 6px}
+#caption p{font-size:18px;line-height:1.5;max-width:62ch}
+#stat-grid{display:flex;flex-wrap:wrap;gap:6px 26px;margin-bottom:8px}
+.stat .v{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .l{font-size:14px;color:var(--muted)}
+#chart svg{display:block;max-width:100%}
+#chart text{font-family:inherit;fill:var(--ink);font-size:14px}#chart text.mut{fill:var(--muted)}
+#chart .bar{fill:var(--accent)}#chart .bar.red{fill:var(--red)}#chart .axis{stroke:var(--line);stroke-width:1.5}
+.slider label{font-size:14px;color:var(--muted);display:block;margin-bottom:4px}
+.tag{display:inline-block;border:1.5px solid var(--amber);color:var(--amber);border-radius:6px;padding:0 6px;font-size:13px;margin-left:6px;vertical-align:middle}
+.slider input{width:100%;accent-color:var(--accent)}
+.sl-vals{display:flex;gap:18px;font-size:14px;color:var(--muted);flex-wrap:wrap}.sl-vals b{color:var(--ink);font-variant-numeric:tabular-nums}
+#live{min-width:200px;font-variant-numeric:tabular-nums}
+#live h3{font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+#live table{border-collapse:collapse}#live td{padding:1px 0;font-size:15px}#live td:last-child{text-align:right;padding-left:18px;font-weight:600}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.legend .g{background:var(--grey)}.legend .t{background:var(--accent)}.legend .r{background:var(--red)}.legend .a{background:var(--card);border:2.5px solid var(--amber)}
+footer{padding:12px 40px 18px;border-top:1.5px solid var(--line);display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.btns{display:flex;gap:6px}
+button.ic{width:40px;height:40px;border:1.5px solid var(--ink);background:var(--card);border-radius:8px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+button.ic svg{width:18px;height:18px;fill:currentColor}
+button:focus-visible,input:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--card);color:var(--ink);padding:0 12px;height:37px;font:inherit;font-size:15px;cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.tl{flex:1;min-width:260px;position:relative;height:40px;display:flex;align-items:center}
+.tl .track{position:absolute;left:8px;right:8px;height:1.5px;background:var(--line)}
+.tl .fill{position:absolute;left:8px;height:1.5px;background:var(--accent);width:0}
+.tl .mk{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:1.5px solid var(--ink);background:var(--card);padding:0;cursor:pointer}
+.tl .mk.done{background:var(--accent);border-color:var(--accent)}
+.tl .mk.cur{background:var(--ink);transform:scale(1.25)}
+.tl .mk::after{content:attr(data-name);position:absolute;bottom:20px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:14px;background:var(--ink);color:var(--bg);padding:2px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .15s}
+.tl .mk:hover::after,.tl .mk:focus-visible::after{opacity:1}
+.lbl{font-size:14px;color:var(--muted)}
+@media (max-width:1100px){#panel{grid-template-columns:1fr 1fr}#live{grid-column:1/-1}}
+@media (max-width:760px){header,main,footer{padding-left:16px;padding-right:16px}#panel{grid-template-columns:1fr}#caption p{font-size:16px}}
+</style>
+</head>
+<body>
+<header><h1>IntruShield — how it works</h1><p>A network intrusion detector on NSL-KDD, one step at a time, with the real numbers it produced.</p></header>
+<main>
+  <div id="diagram-wrap">
+    <svg id="net" viewBox="0 0 1400 440" role="img" aria-label="IntruShield pipeline as a layered flow diagram"></svg>
+    <div id="card" hidden></div>
+  </div>
+  <section id="panel">
+    <div id="caption"><div class="no"></div><h2></h2><p></p></div>
+    <div id="stats"><div id="stat-grid"></div><div id="chart"></div></div>
+    <div id="live"><h3>Live scoring</h3>
+      <table><tr><td>connections processed</td><td id="c-proc">0</td></tr><tr><td>attacks caught</td><td id="c-caught">0</td></tr>
+      <tr><td>attacks missed</td><td id="c-missed">0</td></tr><tr><td>false alarms</td><td id="c-fa">0</td></tr></table>
+      <div class="legend"><span><i class="g"></i>unscored</span><span><i class="t"></i>normal</span><span><i class="r"></i>attack</span><span><i class="a"></i>wrong class</span></div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="btns">
+    <button class="ic" id="b-restart" aria-label="Restart (R)" title="Restart (R)"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+    <button class="ic" id="b-prev" aria-label="Previous step (←)" title="Previous step (←)"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM18 5l-9 7 9 7z"/></svg></button>
+    <button class="ic" id="b-play" aria-label="Pause (Space)" title="Play / Pause (Space)"><svg viewBox="0 0 24 24" id="i-pause"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg><svg viewBox="0 0 24 24" id="i-play" style="display:none"><path d="M7 4l13 8-13 8z"/></svg></button>
+    <button class="ic" id="b-next" aria-label="Next step (→)" title="Next step (→)"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM6 5l9 7-9 7z"/></svg></button>
+  </div>
+  <div class="seg" id="speed" role="group" aria-label="Speed"><button data-s="0.5">0.5x</button><button data-s="1" aria-pressed="true">1x</button><button data-s="2">2x</button><button data-s="4">4x</button></div>
+  <div class="tl" id="timeline"><div class="track"></div><div class="fill"></div></div>
+  <div class="seg" id="lang" role="group" aria-label="Captions"><button data-l="en" aria-pressed="true">English</button><button data-l="hi">Hinglish</button></div>
+  <button class="seg" style="padding:0" id="b-parts" aria-pressed="true" title="Toggle particles"><span style="padding:0 12px;line-height:37px;font-size:15px">Particles</span></button>
+</footer>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+'use strict';
+const D=JSON.parse(document.getElementById('data').textContent);
+const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
+const NW=124,NH=56,SCENE=6,EDGE_T=0.8,NSTEP=D.steps.length;
+const fmtInt=n=>Math.round(n).toLocaleString('en-US');
+const ease=t=>1-Math.pow(1-Math.min(1,Math.max(0,t)),3);
+function mk(tag,at){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);return e;}
+
+/* ---------- diagram ---------- */
+const LAYERS=[[{id:'raw',label:'Raw data'}],[{id:'audit',label:'Audit'}],[{id:'prep',label:'Preprocess'}],
+  D.models.map(m=>({id:'m_'+m,label:m})),[{id:'select',label:'Select'}],[{id:'gate',label:'Threshold gate'}],
+  D.classes.map(c=>({id:'c_'+c,label:c})),[{id:'eval',label:'Evaluation'}],[{id:'explain',label:'Explain (SHAP)'}]];
+const nodes={},edges=[],edgeMap={};
+LAYERS.forEach((col,i)=>col.forEach((nd,k)=>{nd.layer=i;nd.x=85+i*153.75;nd.y=220+(k-(col.length-1)/2)*(col.length===5?70:78);nodes[nd.id]=nd;}));
+for(let i=0;i<LAYERS.length-1;i++)for(const a of LAYERS[i])for(const b of LAYERS[i+1]){const e={id:a.id+'>'+b.id,from:a,to:b};edges.push(e);edgeMap[e.id]=e;}
+const svg=$('#net'),gE=mk('g',{}),gN=mk('g',{}),gP=mk('g',{});svg.append(gE,gN,gP);
+for(const e of edges){const x1=e.from.x+NW/2,y1=e.from.y,x2=e.to.x-NW/2,y2=e.to.y,dx=(x2-x1)/2;
+  e.el=mk('path',{class:'edge',d:`M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`});gE.append(e.el);e.len=e.el.getTotalLength();}
+for(const nd of Object.values(nodes)){const g=mk('g',{class:'node',transform:`translate(${nd.x},${nd.y})`});
+  g.append(mk('rect',{x:-NW/2,y:-NH/2,width:NW,height:NH,rx:10}));
+  const t1=mk('text',{class:'lab',y:-5,'text-anchor':'middle'});t1.textContent=nd.label;
+  const t2=mk('text',{class:'key',y:16,'text-anchor':'middle'});t2.textContent=D.nodes[nd.id]||'';
+  g.append(t1,t2);gN.append(g);nd.el=g;nd.keyEl=t2;}
+
+/* ---------- state ---------- */
+let stepIdx=-1,sceneT=0,playing=true,speed=1,lang='en',partsOn=true,ended=false;
+const cnt={proc:0,caught:0,missed:0,fa:0};
+const parts=[];let rowCursor=0,spawnAcc=0;
+let stats=[],bars=[],chartMax=1;
+
+/* ---------- particles ---------- */
+function spawn(step){if(parts.length>90||step.layer<1)return;const row=D.rows[rowCursor++%D.rows.length];
+  const model='m_'+(step.layer>=4?D.best_short:D.models[Math.floor(Math.random()*D.models.length)]);
+  const route=['raw>audit','audit>prep','prep>'+model,model+'>select','select>gate','gate>c_'+row.final];
+  const g=mk('g',{class:'p'});const hit=mk('circle',{r:11,class:'hit'}),dot=mk('circle',{r:5,class:'dot'});g.append(hit,dot);gP.append(g);
+  const p={row,route,maxEdges:Math.min(6,step.layer),ei:0,t:0,el:g,phase:'flow',jit:Math.random(),x:0,y:0};
+  g.addEventListener('click',ev=>{ev.stopPropagation();openCard(p);});parts.push(p);}
+function removeP(p){p.el.remove();parts.splice(parts.indexOf(p),1);}
+function clearParts(){while(parts.length)removeP(parts[0]);}
+function colourize(p){const r=p.row;p.el.classList.add(r.gate?'red':'teal');if(r.final!==r.true)p.el.classList.add('ring');}
+function count(r){cnt.proc++;if(r.true!=='Normal'){r.gate?cnt.caught++:cnt.missed++;}else if(r.gate)cnt.fa++;
+  $('#c-proc').textContent=fmtInt(cnt.proc);$('#c-caught').textContent=fmtInt(cnt.caught);$('#c-missed').textContent=fmtInt(cnt.missed);$('#c-fa').textContent=fmtInt(cnt.fa);}
+function updateParts(dt){for(let i=parts.length-1;i>=0;i--){const p=parts[i];
+  if(p.phase==='flow'){p.t+=dt/EDGE_T*(0.85+0.3*p.jit);
+    if(p.t>=1){p.t=0;p.ei++;if(p.ei===5)colourize(p);
+      if(p.ei>=p.maxEdges){p.phase=p.maxEdges===6?'drop':'fade';p.t=0;if(p.phase==='drop')count(p.row);}}}
+  else{p.t+=dt/0.45;if(p.t>=1){removeP(p);continue;}}
+  place(p);}}
+function place(p){let x,y,s=1,o=1;
+  if(p.phase==='flow'){const e=edgeMap[p.route[p.ei]];const pt=e.el.getPointAtLength(p.t*e.len);x=pt.x;y=pt.y;}
+  else{const e=edgeMap[p.route[Math.min(p.ei,p.route.length-1)]];const nd=p.ei>=p.route.length?e.to:e.from;x=nd.x-NW/2;y=nd.y;
+    if(p.phase==='drop'){x=nd.x;s=1-0.6*p.t;o=1-p.t;}else{o=1-p.t;}}
+  p.x=x;p.y=y;p.el.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${s.toFixed(3)})`);p.el.style.opacity=o;}
+
+/* ---------- steps ---------- */
+const capNo=$('#caption .no'),capH=$('#caption h2'),capP=$('#caption p'),grid=$('#stat-grid'),chart=$('#chart'),tl=$('#timeline');
+D.steps.forEach((s,i)=>{const b=document.createElement('button');b.className='mk';b.style.left=`calc(8px + ${i/(NSTEP-1)}*(100% - 16px))`;
+  b.setAttribute('data-name',`${i+1}. ${s.title}`);b.setAttribute('aria-label',`Step ${i+1}: ${s.title}`);b.addEventListener('click',()=>go(i));tl.append(b);});
+const marks=[...tl.querySelectorAll('.mk')];
+function go(i,keepParts){i=Math.max(0,Math.min(NSTEP-1,i));const prev=stepIdx>=0?D.steps[stepIdx]:null;const s=D.steps[i];
+  if(!keepParts||(prev&&s.layer<prev.layer))clearParts();stepIdx=i;sceneT=0;ended=false;closeCard();
+  for(const nd of Object.values(nodes)){const act=s.nodes.includes(nd.id);nd.el.classList.toggle('active',act&&!s.sequential);
+    nd.el.classList.toggle('dim',!act&&s.nodes.length>0);nd.keyEl.style.opacity=(nd.layer<=s.layer&&!(s.sequential&&act))?1:0;}
+  for(const e of edges)e.el.classList.toggle('active',s.nodes.includes(e.to.id));
+  renderCaption();renderStats(s);renderChart(s);
+  marks.forEach((m,k)=>{m.classList.toggle('done',k<i);m.classList.toggle('cur',k===i);});}
+function renderCaption(){const s=D.steps[stepIdx];capNo.textContent=`Step ${stepIdx+1} of ${NSTEP}`;capH.textContent=s.title;capP.textContent=s[lang];}
+function fmtStat(st,v){if(st.t!==undefined)return st.t;if(st.pct)return (v*100).toFixed(1)+'%';if(st.d)return v.toFixed(st.d);return fmtInt(v);}
+function renderStats(s){grid.innerHTML='';stats=[];for(const st of s.stats||[]){const d=document.createElement('div');d.className='stat';
+  const v=document.createElement('div');v.className='v';const l=document.createElement('div');l.className='l';l.textContent=st.l;d.append(v,l);grid.append(d);
+  stats.push({st,el:v});}}
+function renderChart(s){chart.innerHTML='';bars=[];if(!s.chart)return;
+  if(s.chart==='slider'){const S=D.sensitivity;chart.innerHTML=`<div class="slider"><label>What other thresholds would do on KDDTest+ <span class="tag">analysis only</span></label>
+    <input type="range" min="0" max="${S.length-1}" step="1" value="0" aria-label="threshold"><div class="sl-vals"><span>threshold <b></b></span><span>recall <b></b></span><span>false alarms <b></b></span><span>macro-F1 <b></b></span></div></div>`;
+    const inp=chart.querySelector('input'),bs=chart.querySelectorAll('b');const upd=()=>{const r=S[+inp.value];
+      bs[0].textContent=r.threshold<0.01?r.threshold.toExponential(1):r.threshold;bs[1].textContent=(r.test_recall*100).toFixed(1)+'%';bs[2].textContent=(r.test_far*100).toFixed(1)+'%';bs[3].textContent=r.test_f1_macro.toFixed(3);};
+    inp.addEventListener('input',upd);upd();return;}
+  const items=s.bars||[];const sv=mk('svg',{});chart.append(sv);
+  if(s.chart==='bars'||s.chart==='ab'){const n=items.length,bw=n<=2?110:56,gap=16,w=n*(bw+gap)+gap,h=150,base=118;sv.setAttribute('viewBox',`0 0 ${w} ${h}`);sv.setAttribute('width',w);
+    sv.append(mk('line',{x1:0,y1:base,x2:w,y2:base,class:'axis'}));
+    items.forEach((it,k)=>{const x=gap+k*(bw+gap);const r=mk('rect',{x,y:base,width:bw,height:0,rx:4,class:'bar'+(it.c==='red'?' red':'')});
+      const v=mk('text',{x:x+bw/2,y:base-6,'text-anchor':'middle'});const l=mk('text',{x:x+bw/2,y:base+20,'text-anchor':'middle',class:'mut'});l.textContent=it.l;sv.append(r,v,l);
+      bars.push({r,v,val:it.v,base,maxH:100,fmt:x=>(x*100).toFixed(1)+'%',vert:true});});chartMax=1;}
+  else{const n=items.length,rh=20,gap=6,lw=160,w=400,h=n*(rh+gap)+2;sv.setAttribute('viewBox',`0 0 ${w} ${h}`);sv.setAttribute('width',w);
+    const mx=Math.max(...items.map(i=>i.v));items.forEach((it,k)=>{const y=k*(rh+gap);const l=mk('text',{x:lw-8,y:y+15,'text-anchor':'end'});l.textContent=it.l;
+      const r=mk('rect',{x:lw,y,width:0,height:rh,rx:4,class:'bar'+(it.c==='red'?' red':'')});const v=mk('text',{x:lw+6,y:y+15,class:'mut'});sv.append(l,r,v);
+      bars.push({r,v,val:it.v,x:lw,maxW:110,mx,fmt:x=>it.n?`${(x*100).toFixed(0)}% missed (${it.n})`:x.toFixed(2),vert:false});});}}
+function animateNumbers(){const k=ease(sceneT/1.2);const s=D.steps[stepIdx];
+  for(const o of stats){const v=o.st.v;o.el.textContent=fmtStat(o.st,v===undefined?0:(o.st.pct||o.st.d?v*k:Math.round(v*k)));}
+  for(const b of bars){if(b.vert){const hh=b.val/chartMax*b.maxH*k;b.r.setAttribute('y',b.base-hh);b.r.setAttribute('height',hh);b.v.setAttribute('y',b.base-hh-6);b.v.textContent=b.fmt(b.val*k);}
+    else{const ww=b.val/b.mx*b.maxW*k;b.r.setAttribute('width',ww);b.v.setAttribute('x',b.x+ww+6);b.v.textContent=b.fmt(b.val*k);}}
+  if(s.sequential){const n=Math.min(s.nodes.length,Math.floor(sceneT/1.1)+1);s.nodes.forEach((id,i)=>{const nd=nodes[id];const on=i<n;nd.el.classList.toggle('active',on);nd.el.classList.toggle('dim',!on);nd.keyEl.style.opacity=on?1:0;});}
+  tl.querySelector('.fill').style.width=`calc((100% - 16px) * ${(stepIdx+Math.min(1,sceneT/SCENE))/(NSTEP-1)})`;}
+
+/* ---------- loop ---------- */
+let last=performance.now();
+function tick(dtRaw){if(!playing||ended)return;const dt=dtRaw*speed;sceneT+=dt;const s=D.steps[stepIdx];
+  if(partsOn){spawnAcc+=dt*(s.live||s.layer>=6?2.4:1.3);while(spawnAcc>=1){spawnAcc-=1;spawn(s);}}
+  updateParts(dt);animateNumbers();
+  if(sceneT>=SCENE){if(stepIdx<NSTEP-1)go(stepIdx+1,true);else{ended=true;setPlaying(false);}}}
+function frame(now){tick(Math.min(0.05,(now-last)/1000));last=now;requestAnimationFrame(frame);}
+
+/* ---------- controls ---------- */
+function setPlaying(v){playing=v;document.body.classList.toggle('paused',!v);$('#i-pause').style.display=v?'':'none';$('#i-play').style.display=v?'none':'';
+  $('#b-play').setAttribute('aria-label',v?'Pause (Space)':'Play (Space)');if(v)closeCard();}
+function toggle(){if(ended){go(0);ended=false;}setPlaying(!playing);}
+function restart(){cnt.proc=cnt.caught=cnt.missed=cnt.fa=0;$('#c-proc').textContent=$('#c-caught').textContent=$('#c-missed').textContent=$('#c-fa').textContent='0';rowCursor=0;go(0);setPlaying(true);}
+$('#b-play').addEventListener('click',toggle);$('#b-prev').addEventListener('click',()=>go(stepIdx-1));$('#b-next').addEventListener('click',()=>go(stepIdx+1));$('#b-restart').addEventListener('click',restart);
+$('#speed').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;speed=+b.dataset.s;$('#speed').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));});
+$('#lang').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;lang=b.dataset.l;$('#lang').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderCaption();});
+$('#b-parts').addEventListener('click',()=>{partsOn=!partsOn;$('#b-parts').setAttribute('aria-pressed',partsOn);if(!partsOn)clearParts();});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;
+  if(e.code==='Space'){e.preventDefault();toggle();}else if(e.key==='ArrowRight'){go(stepIdx+1);}else if(e.key==='ArrowLeft'){go(stepIdx-1);}
+  else if(e.key==='r'||e.key==='R'){restart();}else if(e.key==='Escape'){closeCard();}});
+window.addEventListener('resize',closeCard);document.addEventListener('click',e=>{if(!e.target.closest('#card'))closeCard();});
+
+/* ---------- particle card ---------- */
+const card=$('#card');
+function openCard(p){setPlaying(false);const r=p.row;const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;const sp=pt.matrixTransform(svg.getScreenCTM());
+  const wr=$('#diagram-wrap').getBoundingClientRect();let left=sp.x-wr.left+16,top=sp.y-wr.top-12;if(left+310>wr.width)left=sp.x-wr.left-316;if(top<0)top=0;
+  const verdict=r.gate?`<span class="attack">attack</span>`:`<span class="normal">normal</span>`;const wrong=r.final!==r.true?` <span class="wrong">· wrong class</span>`:'';
+  const shap=r.shap?`<div style="margin-top:6px;color:var(--muted)">top-3 SHAP reasons (toward attack)</div><ul>${r.shap.map(s=>`<li>${s[0]} = ${s[1]} <b>(${s[2]>0?'+':''}${s[2]})</b></li>`).join('')}</ul>`:'';
+  card.innerHTML=`<h4>Connection<button aria-label="close">×</button></h4><dl><dt>protocol</dt><dd>${r.protocol}</dd><dt>service</dt><dd>${r.service}</dd><dt>flag</dt><dd>${r.flag}</dd>
+    <dt>true label</dt><dd>${r.attack} (${r.true})</dd><dt>gate</dt><dd>${verdict}</dd><dt>predicted class</dt><dd>${r.final}${wrong}</dd><dt>P(attack)</dt><dd>${r.p.toFixed(4)}</dd></dl>${shap}`;
+  card.style.left=left+'px';card.style.top=top+'px';card.hidden=false;card.querySelector('button').addEventListener('click',closeCard);}
+function closeCard(){card.hidden=true;}
+
+const q=new URLSearchParams(location.search);if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');  /* ?theme=light|dark overrides the OS setting */
+const h=parseInt(location.hash.slice(1),10);go(h>=1&&h<=NSTEP?h-1:0);setPlaying(true);
+const ff=parseFloat(q.get('t'));if(ff>0)for(let i=0;i<Math.round(ff*60);i++)tick(1/60);  /* ?t=5 fast-forwards 5 s (used for screenshot checks) */
+requestAnimationFrame(frame);  /* open #7 to start at step 7 */
+})();
+</script>
+</body>
+</html>

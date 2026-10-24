@@ -1,0 +1,14 @@
+.git
+.venv
+**/__pycache__
+**/*.pyc
+**/*.log
+frontend/node_modules
+frontend/dist
+design/
+models/candidates
+models/val_idx.npy
+data/KDDTrain+.txt
+data/KDDTest-21.txt
+*.ipynb
+.ipynb_checkpoints

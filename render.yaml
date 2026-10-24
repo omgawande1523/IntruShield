@@ -1,0 +1,11 @@
+# Render Blueprint - one web service running the whole app (API + models + 3D website).
+services:
+  - type: web
+    name: intrushield
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeploy: true

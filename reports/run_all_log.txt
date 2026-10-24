@@ -1,0 +1,236 @@
+
+==============================================================================
+>>> python src/data.py
+==============================================================================
+{
+  "rows": {
+    "train": 125973,
+    "test": 22544,
+    "test21": 11850
+  },
+  "duplicate_rows": {
+    "train": 0,
+    "test": 0,
+    "test_rows_also_in_train": 664
+  },
+  "class_distribution": {
+    "train": {
+      "Normal": 67343,
+      "DoS": 45927,
+      "Probe": 11656,
+      "R2L": 995,
+      "U2R": 52
+    },
+    "test": {
+      "Normal": 9711,
+      "DoS": 7458,
+      "R2L": 2754,
+      "Probe": 2421,
+      "U2R": 200
+    },
+    "test21": {
+      "DoS": 4342,
+      "R2L": 2754,
+      "Probe": 2402,
+      "Normal": 2152,
+      "U2R": 200
+    }
+  },
+  "binary_distribution": {
+    "train": {
+      "normal": 67343,
+      "attack": 58630
+    },
+    "test": {
+      "attack": 12833,
+      "normal": 9711
+    }
+  },
+  "n_attack_types": {
+    "train": 23,
+    "test": 38
+  },
+  "constant_columns": [
+    "num_outbound_cmds"
+  ],
+  "attacks_in_test_not_in_train": {
+    "apache2": {
+      "class": "DoS",
+      "test_rows": 737
+    },
+    "httptunnel": {
+      "class": "U2R",
+      "test_rows": 133
+    },
+    "mailbomb": {
+      "class": "DoS",
+      "test_rows": 293
+    },
+    "mscan": {
+      "class": "Probe",
+      "test_rows": 996
+    },
+    "named": {
+      "class": "R2L",
+      "test_rows": 17
+    },
+    "processtable": {
+      "class": "DoS",
+      "test_rows": 685
+    },
+    "ps": {
+      "class": "U2R",
+      "test_rows": 15
+    },
+    "saint": {
+      "class": "Probe",
+      "test_rows": 319
+    },
+    "sendmail": {
+      "class": "R2L",
+      "test_rows": 14
+    },
+    "snmpgetattack": {
+      "class": "R2L",
+      "test_rows": 178
+    },
+    "snmpguess": {
+      "class": "R2L",
+      "test_rows": 331
+    },
+    "sqlattack": {
+      "class": "U2R",
+      "test_rows": 2
+    },
+    "udpstorm": {
+      "class": "DoS",
+      "test_rows": 2
+    },
+    "worm": {
+      "class": "R2L",
+      "test_rows": 2
+    },
+    "xlock": {
+      "class": "R2L",
+      "test_rows": 9
+    },
+    "xsnoop": {
+      "class": "R2L",
+      "test_rows": 4
+    },
+    "xterm": {
+      "class": "U2R",
+      "test_rows": 13
+    }
+  },
+  "unseen_attack_rows_in_test": 3750,
+  "difficulty_mean": {
+    "train": 19.50406039389393,
+    "test": 18.017964868701206
+  }
+}
+Audit written to D:\IntruShield\reports\audit.json
+
+==============================================================================
+>>> python src/train.py
+==============================================================================
+Dropping constant columns: ['num_outbound_cmds']
+Train/val split: 107077 / 18896 rows
+Validation rows whose feature vector also appears in train split: 3
+
+=== BINARY ===
+  [binary] LogisticRegression: val macro-F1=0.9852  train=6.7s
+  [binary] RandomForest: val macro-F1=0.9989  train=11.6s
+  [binary] XGBoost tuned in 57s, cv f1_macro=0.9988 params={'colsample_bytree': 0.7159725093210578, 'learning_rate': 0.07950895383366713, 'max_depth': 6, 'min_child_weight': 2, 'n_estimators': 287, 'reg_lambda': 2.148628294821613, 'subsample': 0.7824279936868144}
+  [binary] XGBoost: val macro-F1=0.9994  train=3.7s
+  [binary] LightGBM tuned in 31s, cv f1_macro=0.9989 params={'colsample_bytree': 0.762378215816119, 'learning_rate': 0.08183340223705389, 'min_child_samples': 68, 'n_estimators': 158, 'num_leaves': 56, 'reg_lambda': 0.7099954844612695, 'subsample': 0.9895022075365837, 'subsample_freq': 1}
+  [binary] LightGBM: val macro-F1=0.9994  train=2.7s
+  [binary] BEST = LightGBM
+  [binary] 5-fold CV macro-F1 on KDDTrain+: 0.9992 +/- 0.0002 (14s)
+  [binary] threshold=0.00062 -> val recall=1.0000, false-alarm=0.0500 (constraint FAR<=0.05)
+  [binary] refit on full KDDTrain+ in 2.8s -> D:\IntruShield\models\binary_model.joblib
+
+=== MULTICLASS ===
+  [multiclass] LogisticRegression: val macro-F1=0.7109  train=49.5s
+  [multiclass] RandomForest: val macro-F1=0.9538  train=10.4s
+  [multiclass] XGBoost tuned in 203s, cv f1_macro=0.9480 params={'colsample_bytree': 0.5290418060840998, 'learning_rate': 0.177249944781739, 'max_depth': 7, 'min_child_weight': 3, 'n_estimators': 249, 'reg_lambda': 0.7538521056219512, 'subsample': 0.8887995089067299}
+  [multiclass] XGBoost: val macro-F1=0.9760  train=12.6s
+  [multiclass] LightGBM tuned in 145s, cv f1_macro=0.9438 params={'colsample_bytree': 0.7604171300129119, 'learning_rate': 0.1453406429219219, 'min_child_samples': 40, 'n_estimators': 307, 'num_leaves': 67, 'reg_lambda': 3.140380245487317, 'subsample': 0.9861021229056552, 'subsample_freq': 1}
+  [multiclass] LightGBM: val macro-F1=0.9761  train=15.7s
+  [multiclass] BEST = LightGBM
+  [multiclass] 5-fold CV macro-F1 on KDDTrain+: 0.9523 +/- 0.0222 (83s)
+  [multiclass] refit on full KDDTrain+ in 17.0s -> D:\IntruShield\models\multiclass_model.joblib
+
+Training stage done in 671s
+
+==============================================================================
+>>> python src/evaluate.py
+==============================================================================
+[binary] LogisticRegression: validation F1m=0.9707  KDDTest+ F1m=0.7660  KDDTest-21 F1m=0.5035
+[binary] RandomForest: validation F1m=0.9783  KDDTest+ F1m=0.9286  KDDTest-21 F1m=0.7592
+[binary] XGBoost: validation F1m=0.9732  KDDTest+ F1m=0.8930  KDDTest-21 F1m=0.7004
+[binary] LightGBM: validation F1m=0.9732  KDDTest+ F1m=0.8969  KDDTest-21 F1m=0.7081
+[multiclass] LogisticRegression: validation F1m=0.7109  KDDTest+ F1m=0.5893  KDDTest-21 F1m=0.4840
+[multiclass] RandomForest: validation F1m=0.9538  KDDTest+ F1m=0.4681  KDDTest-21 F1m=0.3686
+[multiclass] XGBoost: validation F1m=0.9760  KDDTest+ F1m=0.5810  KDDTest-21 F1m=0.4948
+[multiclass] LightGBM: validation F1m=0.9761  KDDTest+ F1m=0.5774  KDDTest-21 F1m=0.4896
+
+Evaluation done in 21s -> D:\IntruShield\reports\metrics.json
+
+==============================================================================
+>>> python src/report.py
+==============================================================================
+Report written to D:\IntruShield\reports\eval_report.html (1.0 MB)
+
+==============================================================================
+>>> python src/predict.py
+==============================================================================
+IntruShield demo - binary=LightGBM (threshold 0.00062), multiclass=LightGBM
+
+ # true attack     true class pred    pred class P(attack)  top-3 SHAP reasons
+------------------------------------------------------------------------------
+ 1 normal          Normal     normal  Normal        0.0001  src_bytes=6.82 (-2.37); dst_bytes=5.80 (-1.80); count=1.10 (-1.24)
+ 2 neptune         DoS        ATTACK  DoS           1.0000  src_bytes=0.00 (+5.67); dst_bytes=0.00 (+1.57); count=5.42 (+1.16)
+ 3 normal          Normal     normal  Normal        0.0000  src_bytes=6.92 (-2.29); dst_bytes=5.83 (-1.68); count=0.69 (-1.36)
+ 4 normal          Normal     normal  Normal        0.0000  src_bytes=5.50 (-3.31); dst_bytes=6.50 (-1.40); dst_host_srv_count=5.55 (-1.23)
+ 5 normal          Normal     normal  Normal        0.0000  src_bytes=5.43 (-3.04); dst_bytes=5.66 (-1.49); dst_host_srv_count=5.55 (-1.10)
+ 6 nmap            Probe      ATTACK  Probe         0.9994  src_bytes=0.00 (+5.04); count=0.69 (-1.63); dst_bytes=0.00 (+1.24)
+ 7 apache2         DoS        ATTACK  Normal        0.7561  src_bytes=11.29 (+2.37); dst_bytes=0.00 (+1.29); duration=6.66 (+1.11)  <-- wrong
+ 8 normal          Normal     normal  Normal        0.0000  src_bytes=5.56 (-3.13); dst_bytes=8.76 (-1.29); dst_host_srv_count=5.55 (-1.14)
+ 9 normal          Normal     normal  Normal        0.0000  src_bytes=5.46 (-3.43); dst_bytes=5.80 (-1.49); dst_host_srv_count=5.55 (-1.18)
+10 normal          Normal     normal  Normal        0.0000  src_bytes=5.46 (-3.38); dst_bytes=6.98 (-1.37); dst_host_srv_count=5.54 (-1.22)
+
+SHAP value = contribution to log-odds of 'attack' (+ pushes toward attack); feature values shown after log1p / one-hot preprocessing.
+
+==============================================================================
+>>> python src/workflow.py
+==============================================================================
+Scored 400 KDDTest+ rows (233 attacks), SHAP for 30. Workflow simulation written to D:\IntruShield\reports\workflow_sim.html (92 KB)
+
+==============================================================================
+IntruShield - RESULTS SUMMARY
+==============================================================================
+
+BINARY           Protocol A (validation)       |       Protocol B (KDDTest+)        | B-21
+model                    F1m     Acc  Recall     FAR |     F1m     Acc  Recall     FAR |     F1m
+ LogisticRegression   0.9707  0.9708  0.9947  0.0500 |  0.7660  0.7661  0.6536  0.0852 |  0.5035
+ RandomForest         0.9783  0.9783  1.0000  0.0406 |  0.9286  0.9311  0.9813  0.1353 |  0.7592
+ XGBoost              0.9732  0.9733  1.0000  0.0500 |  0.8930  0.8947  0.8951  0.1060 |  0.7004
+*LightGBM             0.9732  0.9733  1.0000  0.0500 |  0.8969  0.8986  0.9031  0.1074 |  0.7081
+
+MULTICLASS       Protocol A (validation)       |       Protocol B (KDDTest+)        | B-21
+model                    F1m     Acc  Recall     FAR |     F1m     Acc  Recall     FAR |     F1m
+ LogisticRegression   0.7109  0.9718  0.9563  0.0010 |  0.5893  0.7699  0.5849  0.2034 |  0.4840
+ RandomForest         0.9538  0.9988  0.9396  0.0001 |  0.4681  0.7372  0.4680  0.2330 |  0.3686
+ XGBoost              0.9760  0.9994  0.9981  0.0000 |  0.5810  0.7938  0.5568  0.1566 |  0.4948
+*LightGBM             0.9761  0.9995  0.9982  0.0001 |  0.5774  0.7870  0.5458  0.1647 |  0.4896
+
+* = selected on validation macro-F1.  FAR = false-alarm rate on normal traffic.
+Deployed binary LightGBM (thr 0.001) on KDDTest+: recall 0.9063, FAR 0.0972, AUC 0.9698 | seen-attack recall 0.925, unseen-attack recall 0.861
+Leakage check: Protocol A accuracy 99.9524% > 99.9%; 3 / 18896 validation rows duplicate a train row.
+
+Step timings: data.py 1s, train.py 675s, evaluate.py 25s, report.py 0s, predict.py 3s, workflow.py 3s  | TOTAL 11.8 min
+
+Report: D:\IntruShield\reports\eval_report.html
+Workflow simulation: D:\IntruShield\reports\workflow_sim.html
+EXIT 0

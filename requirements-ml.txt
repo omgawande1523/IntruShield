@@ -1,0 +1,5 @@
+# Full ML pipeline (training, evaluation, figures, report): run_all.py / the notebook.
+-r requirements.txt
+xgboost==3.4.1
+matplotlib==3.11.2
+seaborn==0.13.2

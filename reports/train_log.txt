@@ -1,0 +1,29 @@
+Dropping constant columns: ['num_outbound_cmds']
+Train/val split: 107077 / 18896 rows
+Validation rows whose feature vector also appears in train split: 3
+
+=== BINARY ===
+  [binary] LogisticRegression: val macro-F1=0.9852  train=5.7s
+  [binary] RandomForest: val macro-F1=0.9989  train=10.2s
+  [binary] XGBoost tuned in 50s, cv f1_macro=0.9989 params={'colsample_bytree': 0.73338144662399, 'learning_rate': 0.26218390981880657, 'max_depth': 8, 'min_child_weight': 1, 'n_estimators': 266, 'subsample': 0.6053059844639466}
+  [binary] XGBoost: val macro-F1=0.9993  train=3.5s
+  [binary] LightGBM tuned in 37s, cv f1_macro=0.9991 params={'colsample_bytree': 0.9299702033681603, 'learning_rate': 0.21368303541870054, 'min_child_samples': 13, 'n_estimators': 266, 'num_leaves': 32, 'subsample': 0.9795542149013333, 'subsample_freq': 1}
+  [binary] LightGBM: val macro-F1=0.9995  train=3.8s
+  [binary] BEST = LightGBM
+  [binary] 5-fold CV macro-F1 on KDDTrain+: 0.9993 +/- 0.0002 (15s)
+  [binary] threshold=0.0000 -> val recall=1.0000, false-alarm=0.0121 (constraint FAR<=0.05)
+  [binary] refit on full KDDTrain+ in 3.0s -> D:\IntruShield\models\binary_model.joblib
+
+=== MULTICLASS ===
+  [multiclass] LogisticRegression: val macro-F1=0.7109  train=23.4s
+  [multiclass] RandomForest: val macro-F1=0.9538  train=7.6s
+  [multiclass] XGBoost tuned in 213s, cv f1_macro=0.9520 params={'colsample_bytree': 0.6943386448447411, 'learning_rate': 0.1032642385789519, 'max_depth': 8, 'min_child_weight': 2, 'n_estimators': 316, 'subsample': 0.7123738038749523}
+  [multiclass] XGBoost: val macro-F1=0.9629  train=20.5s
+  [multiclass] LightGBM tuned in 108s, cv f1_macro=0.9500 params={'colsample_bytree': 0.9828160165372797, 'learning_rate': 0.24826728399144452, 'min_child_samples': 13, 'n_estimators': 152, 'num_leaves': 16, 'subsample': 0.8736932106048627, 'subsample_freq': 1}
+  [multiclass] LightGBM: val macro-F1=0.9762  train=4.6s
+  [multiclass] BEST = LightGBM
+  [multiclass] 5-fold CV macro-F1 on KDDTrain+: 0.7015 +/- 0.2229 (13s)
+  [multiclass] refit on full KDDTrain+ in 2.5s -> D:\IntruShield\models\multiclass_model.joblib
+
+Training stage done in 524s
+EXIT 0
