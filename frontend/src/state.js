@@ -10,6 +10,7 @@ export const state = {
   globeVis: 0, globeSpin: 1,
   shieldVis: 0,
   bgGreen: 1,                                // hero backdrop tint (0 = pure black)
+  hoverBoost: 0,                             // set by fx.js while a CTA is hovered (not scroll-driven)
   objX: 0, objY: 0, objScale: 1, camZ: 7,
 };
 export const prog = { hero: 0, problem: 0, intro: 0, purpose: 0, how: 0, demo: 0, impact: 0 };
@@ -20,8 +21,8 @@ const base = { brainVis: 0, brainDissolve: 1.1, shardVis: 0, flyVis: 0, fly: 0, 
   driftVis: 0, globeVis: 0, globeSpin: 1, shieldVis: 0, bgGreen: 0, objX: 0, objY: 0, objScale: 1 };
 const T = (o) => ({ ...base, ...o });
 export const TARGETS = {
-  hero:     T({ brainVis: 1, brainDissolve: 0.12, shardVis: 1, bgGreen: 1, objX: 0.75, objY: 0.4, objScale: 1.15 }),
-  heroEnd:  T({ brainVis: 1, brainDissolve: 0.2, shardVis: 1, bgGreen: 1, objX: 0.75, objY: 0.4, objScale: 1.2 }),
+  hero:     T({ brainVis: 1, brainDissolve: 0.12, shardVis: 1, bgGreen: 1, objX: 1.15, objY: 0.4, objScale: 1.15 }),
+  heroEnd:  T({ brainVis: 1, brainDissolve: 0.2, shardVis: 1, bgGreen: 1, objX: 1.15, objY: 0.4, objScale: 1.2 }),
   problem:  T({ brainVis: 0, brainDissolve: 1.1, shardVis: 0, flyVis: 1, fly: 0.5, objX: 0.8, objY: 0.42, objScale: 1.25 }),
   intro:    T({ flyVis: 1, fly: 0.7, voxVis: 1, objX: 2.35, objY: 0, objScale: 1 }),
   introEnd: T({ flyVis: 1, fly: 0.82, voxVis: 1, voxEject: 1, objX: 2.35, objY: 0, objScale: 1 }),

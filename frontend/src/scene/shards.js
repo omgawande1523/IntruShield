@@ -86,7 +86,7 @@ export function createShards(brainMesh, N, G) {
         let lo = lower(d - 0.16), hi = lower(d + 0.02);
         if (hi - lo < 40) { lo = Math.max(0, lo - 20); hi = Math.min(M, hi + 20); }
         const span = Math.max(1, hi - lo);
-        const vis = Math.min(1, cur.shardVis);
+        const vis = Math.min(1, cur.shardVis) * (1 + 0.45 * cur.hoverBoost);
         for (let i = 0; i < N; i++) {
           const life = t * sp[i] + ph[i], cyc = Math.floor(life), f = life - cyc;
           const k = lo + Math.floor(hash(i * 977 + cyc * 7919) * span);

@@ -1,6 +1,7 @@
 import { initDemo } from './demo.js';
 import { initScroll, initCountUps } from './scroll.js';
 import { detectTier } from './tier.js';
+import { initFx } from './fx.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const forceStatic = new URLSearchParams(location.search).has('static');
@@ -59,6 +60,7 @@ const hasWebGL = () => { try { const c = document.createElement('canvas'); retur
   if (metrics) initCountUps(metrics, reduced);
   hideLoader();
   initCursor();
+  initFx({ reduced });
   story.revealHero();
   setTimeout(() => story.refresh(), 800);
   await demoP;

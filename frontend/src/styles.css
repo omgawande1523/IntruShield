@@ -266,3 +266,105 @@ select option { background: #0a0a14; }
   .chips { display: grid; grid-template-columns: 1fr 1fr; }
   .chip { min-width: 0; }
 }
+
+/* =====================================================================
+   GLASS SYSTEM — frosted plates behind every text block
+   ===================================================================== */
+:root { --glass-blur: 18px; }
+.glass {
+  position: relative; isolation: isolate;
+  background-color: rgba(6,6,13,0.42);
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.075) 0%, rgba(255,255,255,0.02) 55%, rgba(123,92,255,0.045) 100%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 30px 60px -30px rgba(0,0,0,0.7);
+  transition: box-shadow 0.45s ease, border-color 0.45s ease;
+}
+/* gradient hairline border */
+.glass::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; z-index: -1; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(255,255,255,0.05) 38%, rgba(255,255,255,0.02) 62%, rgba(19,214,196,0.3));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* pointer spotlight (position set by fx.js) */
+.glass::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 0.35s ease;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(19,214,196,0.16), rgba(123,92,255,0.08) 35%, transparent 60%);
+}
+.glass:hover::after { opacity: 1; }
+.glass:not(.result-card):hover { border-color: rgba(19,214,196,0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 30px 60px -30px rgba(0,0,0,0.7), 0 0 44px -10px rgba(19,214,196,0.35); }
+
+/* headline plates: text stays on the grid, the plate extends into the gutter */
+.glass-head { width: fit-content; max-width: min(100%, 980px); padding: 28px 40px 34px; margin-left: -40px; border-radius: 32px; }
+.glass-head .label { margin-bottom: 18px; }
+.glass-note { padding: 22px 24px; }
+/* hero plate stays light so the brain still reads through it */
+.hero .glass-head { --glass-blur: 8px; max-width: min(100%, 1010px); padding: 22px 32px 28px; margin-left: -32px; background-color: rgba(6,6,13,0.18); background-image: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01) 60%, rgba(19,214,196,0.03)); }
+.hero .hero-br { margin-top: 20px; }
+#problem .glass-note, #intro .glass-note { max-width: 460px; }
+.demo .glass-head { margin-bottom: 32px; }
+.step.glass, .stat.glass { padding: 24px; border-top: 1px solid rgba(255,255,255,0.08); }
+.stats { gap: 16px; }
+.honest.glass { padding: 18px 22px 18px 24px; border-left: 2px solid var(--gold); border-radius: 16px; }
+.footer-row.glass { padding: 24px 28px; border-radius: 24px; }
+.card-grid, .steps, .stats { perspective: 1100px; }
+
+/* tilt + magnetic use individual transform properties, so they compose with GSAP's transform */
+.fx-tilt { transform-style: preserve-3d; transition: rotate 0.6s cubic-bezier(.2,.8,.2,1), box-shadow 0.45s, border-color 0.45s; will-change: rotate; }
+.fx-tilt.tilting { transition: rotate 0.12s linear, box-shadow 0.45s, border-color 0.45s; }
+.fx-mag { transition: translate 0.5s cubic-bezier(.2,.8,.2,1), transform 0.2s, box-shadow 0.3s, background 0.2s, border-color 0.2s; }
+.fx-mag.pulling { transition: translate 0.12s linear, transform 0.2s, box-shadow 0.3s, background 0.2s, border-color 0.2s; }
+
+/* =====================================================================
+   GLOW
+   ===================================================================== */
+.display em { text-shadow: 0 0 18px rgba(19,214,196,0.55), 0 0 52px rgba(19,214,196,0.28), 0 2px 28px rgba(3,3,7,0.85); }
+.display em.red { text-shadow: 0 0 18px rgba(255,77,94,0.55), 0 0 52px rgba(255,77,94,0.28), 0 2px 28px rgba(3,3,7,0.85); }
+.progress i { box-shadow: 0 0 12px rgba(19,214,196,0.8), 0 0 4px rgba(123,92,255,0.8); }
+
+/* primary buttons: glow, breathing halo and a light sweep */
+.pill, .btn-primary { position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 8px 28px -6px rgba(34,195,154,0.55); animation: halo 3.2s ease-in-out infinite; }
+.pill::after, .btn-primary::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent); transform: skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; }
+.pill:hover, .btn-primary:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset, 0 10px 40px -4px rgba(34,195,154,0.8), 0 0 70px -10px rgba(19,214,196,0.6); }
+@keyframes halo { 0%,100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 8px 28px -6px rgba(34,195,154,0.45); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,0.18) inset, 0 8px 38px -2px rgba(34,195,154,0.75); } }
+@keyframes sweep { 0%, 55% { left: -60%; } 85%, 100% { left: 130%; } }
+.outline-pill { box-shadow: 0 0 18px -6px rgba(255,214,120,0.55), inset 0 0 12px -6px rgba(255,214,120,0.5); }
+.outline-pill:hover { box-shadow: 0 0 30px -4px rgba(255,214,120,0.8), inset 0 0 16px -4px rgba(255,214,120,0.6); }
+.btn-ghost:hover { box-shadow: 0 0 30px -8px rgba(19,214,196,0.5); border-color: rgba(19,214,196,0.6); }
+.text-link:hover { text-shadow: 0 0 14px rgba(19,214,196,0.8); border-color: var(--teal); }
+
+/* nav: glowing underline */
+.nav nav a { position: relative; }
+.nav nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px; background: var(--teal); box-shadow: 0 0 8px var(--teal); transform: scaleX(0); transform-origin: left; transition: transform 0.35s cubic-bezier(.2,.8,.2,1); }
+.nav nav a:hover::after { transform: scaleX(1); }
+
+/* demo */
+.chip { transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s; }
+.chip:hover { box-shadow: 0 0 26px -8px rgba(19,214,196,0.6); border-color: rgba(19,214,196,0.45); }
+.chip.is-attack:hover { box-shadow: 0 0 26px -8px rgba(255,77,94,0.6); border-color: rgba(255,77,94,0.45); }
+.chip[aria-pressed="true"] { box-shadow: 0 0 0 1px var(--teal) inset, 0 0 30px -6px rgba(19,214,196,0.7); }
+.is-normal .verdict { text-shadow: 0 0 22px rgba(19,214,196,0.6), 0 0 60px rgba(19,214,196,0.3); }
+.is-attack .verdict { text-shadow: 0 0 22px rgba(255,77,94,0.65), 0 0 60px rgba(255,77,94,0.32); }
+.ring-fg { filter: drop-shadow(0 0 6px rgba(19,214,196,0.85)); }
+.is-attack .ring-fg { filter: drop-shadow(0 0 6px rgba(255,77,94,0.9)); }
+.reasons li .bar i { box-shadow: 0 0 10px rgba(19,214,196,0.8); }
+.reasons li.toward-attack .bar i { box-shadow: 0 0 10px rgba(255,77,94,0.85); }
+input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 1px rgba(236,235,245,0.4), 0 0 14px rgba(19,214,196,0.8); }
+.tick.caught { box-shadow: 0 0 18px -6px rgba(255,77,94,0.7); }
+
+/* stats: luminous numbers */
+.stat strong { background: linear-gradient(180deg, #ffffff 30%, #c9bcff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 18px rgba(123,92,255,0.45)); }
+.stat:hover strong { filter: drop-shadow(0 0 26px rgba(19,214,196,0.6)); }
+.wordmark { filter: drop-shadow(0 0 40px rgba(123,92,255,0.35)); }
+
+/* lighter glass when the GPU is struggling (set by the scene's quality ladder) and on phones */
+.lite-glass .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(12,12,22,0.72); }
+@media (max-width: 760px) {
+  :root { --glass-blur: 12px; }
+  .glass-head { margin-left: 0; padding: 20px 20px 24px; border-radius: 24px; width: auto; }
+  .glass-note { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .pill, .btn-primary { animation: none; } .pill::after, .btn-primary::after { display: none; } }

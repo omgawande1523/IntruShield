@@ -90,6 +90,7 @@ export async function createScene(canvas, { tier, onProgress = () => {}, reduced
   let quality = 0;
   const degrade = (f) => {
     if (!composer || !bloomOn) return false;
+    if (quality === 1) document.documentElement.classList.add('lite-glass');   // drop backdrop blur before touching the pixel ratio
     if (quality === 0) { bloomScale = 0.5; composer.setSize(innerWidth, innerHeight); }
     else if (quality === 1 && renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); composer.setPixelRatio(1); composer.setSize(innerWidth, innerHeight); }
     else if (quality <= 2 && f < 28) { bloomOn = false; }
@@ -126,7 +127,7 @@ export async function createScene(canvas, { tier, onProgress = () => {}, reduced
   const shotMode = new URLSearchParams(location.search).has('shot');
   function render(dt, t, draw = true) {
     composeState();
-    for (const k of keys) cur[k] = THREE.MathUtils.damp(cur[k], state[k], k === 'camZ' ? 2.2 : 6, dt);
+    for (const k of keys) cur[k] = THREE.MathUtils.damp(cur[k], state[k], k === 'camZ' ? 2.2 : k === 'hoverBoost' ? 4 : 6, dt);
     world.position.set(cur.objX, cur.objY, 0);
     world.scale.setScalar(cur.objScale);
     mouse.lerp(mouseT, 0.05);
